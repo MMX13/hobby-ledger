@@ -1,6 +1,7 @@
 {
+  "id": "/hobby-ledger/",
   "name": "Hobby Ledger",
-  "short_name": "Hobbies",
+  "short_name": "Hobby Ledger",
   "description": "A ledger of the things you do for fun - what they cost you and what they give back. All data stays on your phone.",
   "start_url": "./",
   "scope": "./",
