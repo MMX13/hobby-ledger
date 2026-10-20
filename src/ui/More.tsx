@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { GEM_HOURS, GEM_VALUE, SINK_HOURS, SINK_VALUE } from '../engine/scores';
+import { EFFORT_PENALTY, GEM_HOURS, GEM_VALUE, SINK_HOURS, SINK_VALUE } from '../engine/scores';
 import { EXAMPLES } from '../data/examples';
 import { addActivities, emptyState, getState, isValidBackup, normalise, replaceState, update, useApp } from '../data/store';
 import { Header } from './components';
@@ -62,8 +62,8 @@ export function More() {
         <h2 className="panel-title">How the numbers work</h2>
         <ul className="small mu prose">
           <li>
-            <b>Value</b> is what an activity gives back, 1 to 5: enjoyment, looking forward and how you feel afterwards, with afterwards counting double -
-            lasting enjoyment is what matters here.
+            <b>Value</b> is what an activity gives back for what it takes, out of 5: enjoyment, anticipation and how you feel afterwards (counting double -
+            lasting enjoyment is what matters here), minus {EFFORT_PENALTY} for every point of effort above 1.
           </li>
           <li>
             <b>Time sink</b>: {SINK_HOURS}+ hours a week with a value under {SINK_VALUE}.
@@ -72,8 +72,9 @@ export function More() {
             <b>Under-used gem</b>: value {GEM_VALUE}+ but less than {GEM_HOURS} hour a week.
           </li>
           <li>
-            <b>Pick for me</b> only suggests things that fit your time (setup and teardown included) and energy. Higher-value activities are more likely to come
-            up, and it won’t repeat until it has run through everything that fits.
+            <b>Pick for me</b> only suggests things whose setup, teardown and minimum useful session fit your time, and whose effort fits your energy.
+            Higher-value activities are more likely to come up, as are ones you’d get close to their ideal session length, and it won’t repeat until it has run
+            through everything that fits.
           </li>
         </ul>
       </section>

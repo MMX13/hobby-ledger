@@ -11,8 +11,10 @@ export interface Activity {
   afterglow: number;
   /** How much effort it takes to actually do. 1 = none at all. */
   effort: number;
-  /** A typical session. */
-  duration: number;
+  /** The shortest session that's still worth doing. */
+  minSession: number;
+  /** The session length you'd choose if time weren't a problem. Optional. */
+  idealSession: number | null;
   setup: number;
   teardown: number;
   /** Roughly how much time you spend on it in a normal week. */

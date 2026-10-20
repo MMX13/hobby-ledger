@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { candidates, pick, type PickOptions } from '../engine/picker';
-import { allTags, formatMinutes, totalMinutes, value } from '../engine/scores';
+import { candidates, pick, sessionFor, type PickOptions } from '../engine/picker';
+import { allTags, formatMinutes, value } from '../engine/scores';
 import type { Activity } from '../engine/types';
 import { useApp } from '../data/store';
 import { Header, Icon, Pips, TagChips, toggle } from './components';
@@ -49,7 +49,7 @@ export function Picker({ onEdit }: { onEdit: (a: Activity) => void }) {
             </button>
           ))}
         </div>
-        <p className="small mu">Setup and teardown count towards this.</p>
+        <p className="small mu">Setup, teardown and the minimum useful session have to fit.</p>
 
         <h2 className="panel-title">How much energy have you got?</h2>
         <div className="chips wrap">
@@ -92,8 +92,8 @@ export function Picker({ onEdit }: { onEdit: (a: Activity) => void }) {
           {result.tags.length > 0 && <div className="small mu">{result.tags.join(' · ')}</div>}
           <div className="result-facts">
             <span>
-              <Icon name="clock" size={14} /> {formatMinutes(totalMinutes(result))}
-              {result.setup + result.teardown > 0 && <span className="mu"> ({result.setup} setup, {result.teardown} teardown)</span>}
+              <Icon name="clock" size={14} /> <SessionLine a={result} minutes={minutes} />
+              {result.setup + result.teardown > 0 && <span className="mu"> + {result.setup + result.teardown} min setup/teardown</span>}
             </span>
             <span>
               Value {value(result).toFixed(1)} · Effort <Pips n={result.effort} tone="effort" />
@@ -103,5 +103,17 @@ export function Picker({ onEdit }: { onEdit: (a: Activity) => void }) {
         </button>
       )}
     </main>
+  );
+}
+
+function SessionLine({ a, minutes }: { a: Activity; minutes: number }) {
+  if (!a.idealSession) return <>At least {formatMinutes(a.minSession)}</>;
+  const session = sessionFor(a, minutes);
+  return session >= a.idealSession ? (
+    <>A full {formatMinutes(session)} session</>
+  ) : (
+    <>
+      {formatMinutes(session)} <span className="mu">of your ideal {formatMinutes(a.idealSession)}</span>
+    </>
   );
 }

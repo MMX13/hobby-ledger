@@ -22,8 +22,13 @@ export function emptyState(): AppState {
 const clampRating = (n: unknown) => (typeof n === 'number' && n >= 1 && n <= 5 ? Math.round(n) : 3);
 const nonNeg = (n: unknown) => (typeof n === 'number' && n >= 0 ? n : 0);
 
-export function normaliseActivity(raw: Partial<Activity>): Activity {
+/** Older versions had a single `duration`, which becomes the minimum session. */
+type StoredActivity = Partial<Activity> & { duration?: number };
+
+export function normaliseActivity(raw: StoredActivity): Activity {
   const now = Date.now();
+  const minSession = nonNeg(raw.minSession ?? raw.duration);
+  const ideal = raw.idealSession;
   return {
     id: typeof raw.id === 'string' && raw.id ? raw.id : newId(),
     name: typeof raw.name === 'string' ? raw.name : '',
@@ -32,7 +37,8 @@ export function normaliseActivity(raw: Partial<Activity>): Activity {
     anticipation: clampRating(raw.anticipation),
     afterglow: clampRating(raw.afterglow),
     effort: clampRating(raw.effort),
-    duration: nonNeg(raw.duration),
+    minSession,
+    idealSession: typeof ideal === 'number' && ideal > minSession ? ideal : null,
     setup: nonNeg(raw.setup),
     teardown: nonNeg(raw.teardown),
     weeklyHours: nonNeg(raw.weeklyHours),

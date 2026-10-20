@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { allTags, formatHours, formatMinutes, RATINGS, sortActivities, SORTS, totalMinutes, value, verdict, withTags, type SortKey } from '../engine/scores';
+import { allTags, formatHours, RATINGS, sessionRange, sortActivities, SORTS, value, verdict, withTags, type SortKey } from '../engine/scores';
 import type { Activity } from '../engine/types';
 import { EXAMPLES } from '../data/examples';
 import { addActivities, update, useApp } from '../data/store';
@@ -101,8 +101,8 @@ function ActivityCard({ a, onClick }: { a: Activity; onClick: () => void }) {
       </div>
       <div className="card-foot small mu">
         <span>
-          <Icon name="clock" size={13} /> {formatMinutes(totalMinutes(a))}
-          {a.setup + a.teardown > 0 && ` (${a.setup} + ${a.duration} + ${a.teardown})`}
+          <Icon name="clock" size={13} /> {sessionRange(a)}
+          {a.setup + a.teardown > 0 && ` + ${a.setup + a.teardown} min setup/teardown`}
         </span>
         {a.weeklyHours > 0 && <span>{formatHours(a.weeklyHours)} / week</span>}
         <VerdictPill v={v} />

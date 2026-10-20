@@ -7,7 +7,7 @@ A ledger of the things you do for fun: what each one gives you, what it costs yo
 - **Ledger** - every activity with its ratings and time cost. Sort by value, any single rating, quickest, least setup or time per week. Filter by tag and search.
 - **Activities** have:
   - *What it gives you* (1-5): enjoyment while doing it, how much you look forward to it, how you feel afterwards
-  - *What it costs you*: effort (1-5), setup, session and teardown time in minutes
+  - *What it costs you*: effort (1-5); setup and teardown time; the minimum useful session and, optionally, the ideal session length (minutes)
   - roughly how many hours a week you spend on it now
   - tags (free text, e.g. `board game`, `solo`, `screen`) and notes
 - **Overview** - total hours per week, a time-against-value chart, your time sinks and under-used gems, the most fiddly activities to set up, and a per-tag summary.
@@ -16,10 +16,10 @@ A ledger of the things you do for fun: what each one gives you, what it costs yo
 
 ## How the numbers work
 
-- **Value** = (enjoyment + anticipation + 2 × afterwards) / 4. How you feel afterwards counts double, because lasting enjoyment is the thing this app tries to bring out.
+- **Value** = (enjoyment + anticipation + 2 × afterwards) / 4 − 0.25 × (effort − 1). How you feel afterwards counts double, because lasting enjoyment is the thing this app tries to bring out, and effort counts against it - up to −1 for the most demanding activities.
 - **Time sink** - 3+ hours a week with a value under 3.
 - **Under-used gem** - value 4+ but less than 1 hour a week.
-- **Pick for me** only picks activities whose setup + session + teardown fits your time and whose effort is at or below your energy. The chance of each one coming up is weighted by value², and it doesn't repeat until it has gone through everything that fits. Time sinks are left out unless you untick that option.
+- **Pick for me** only picks activities whose setup + minimum useful session + teardown fits your time and whose effort is at or below your energy. It tells you how long a session you'll get - the ideal if it fits, otherwise whatever time is left. The chance of each one coming up is value² × (0.5 + 0.5 × the share of the ideal session you'd get), so cramming something into its minimum counts for less. It doesn't repeat until it has gone through everything that fits. Time sinks are left out unless you untick that option.
 
 The thresholds live in `src/engine/scores.ts`.
 

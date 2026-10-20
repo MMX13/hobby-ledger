@@ -182,6 +182,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .field input:focus, .field textarea:focus, .tag-box:focus-within { border-color: var(--accent); }
 .field textarea { resize: vertical; }
 .field-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.field-row.two { grid-template-columns: 1fr 1fr; align-items: end; }
 .num-input { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding-right: 10px; }
 .num-input:focus-within { border-color: var(--accent); }
 .field .num-input input { border: 0; background: none; min-width: 0; font-variant-numeric: tabular-nums; }

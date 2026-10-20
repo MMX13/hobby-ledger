@@ -7,21 +7,35 @@ export const RATINGS: { key: RatingKey; label: string; question: string; low: st
   { key: 'effort', label: 'Effort', question: 'How much effort does it take to actually do?', low: 'Effortless', high: 'Demanding' },
 ];
 
-/** Setup + session + teardown. */
+/** Setup + minimum useful session + teardown - the least time it's worth starting with. */
 export function totalMinutes(a: Activity): number {
-  return a.setup + a.duration + a.teardown;
+  return a.setup + a.minSession + a.teardown;
+}
+
+/** Setup + ideal session + teardown; the minimum when there's no ideal. */
+export function idealTotalMinutes(a: Activity): number {
+  return a.setup + (a.idealSession ?? a.minSession) + a.teardown;
+}
+
+/** Session length, e.g. "30 min" or "30-90 min". */
+export function sessionRange(a: Activity): string {
+  return a.idealSession && a.idealSession > a.minSession ? `${a.minSession}–${a.idealSession} min` : formatMinutes(a.minSession);
 }
 
 export function overheadMinutes(a: Activity): number {
   return a.setup + a.teardown;
 }
 
+/** Value lost per point of effort above 1, so the most demanding activities lose 1 point. */
+export const EFFORT_PENALTY = 0.25;
+
 /**
- * What an activity gives back, 1 to 5. How you feel afterwards counts double,
- * because lasting enjoyment is the thing this app is trying to surface.
+ * What an activity gives back for what it takes, 0 to 5. How you feel afterwards
+ * counts double, because lasting enjoyment is the thing this app is trying to
+ * surface, and effort counts against it.
  */
 export function value(a: Activity): number {
-  return (a.enjoyment + a.anticipation + 2 * a.afterglow) / 4;
+  return (a.enjoyment + a.anticipation + 2 * a.afterglow) / 4 - EFFORT_PENALTY * (a.effort - 1);
 }
 
 export const SINK_HOURS = 3;

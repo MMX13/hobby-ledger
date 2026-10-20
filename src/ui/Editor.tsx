@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { allTags, formatMinutes, normaliseTag, RATINGS, totalMinutes, value } from '../engine/scores';
+import { allTags, EFFORT_PENALTY, formatMinutes, idealTotalMinutes, normaliseTag, RATINGS, totalMinutes, value } from '../engine/scores';
 import type { Activity } from '../engine/types';
 import { deleteActivity, getState, newId, saveActivity, useApp } from '../data/store';
 import { Icon, RatingInput } from './components';
 
 function blank(): Activity {
   const now = Date.now();
-  return { id: newId(), name: '', tags: [], enjoyment: 3, anticipation: 3, afterglow: 3, effort: 3, duration: 30, setup: 0, teardown: 0, weeklyHours: 0, notes: '', created: now, updated: now };
+  return { id: newId(), name: '', tags: [], enjoyment: 3, anticipation: 3, afterglow: 3, effort: 3, minSession: 30, idealSession: null, setup: 0, teardown: 0, weeklyHours: 0, notes: '', created: now, updated: now };
 }
 
 export function Editor({ activity, onClose }: { activity: Activity | null; onClose: () => void }) {
@@ -112,15 +112,18 @@ export function Editor({ activity, onClose }: { activity: Activity | null; onClo
             <RatingInput value={a[r.key]} onChange={(n) => set(r.key, n)} labels={[r.low, r.high]} />
           </div>
         ))}
-        <div className="field-row">
-          <NumberField label="Setup" unit="min" value={a.setup} onChange={(n) => set('setup', n)} />
-          <NumberField label="Session" unit="min" value={a.duration} onChange={(n) => set('duration', n)} />
-          <NumberField label="Teardown" unit="min" value={a.teardown} onChange={(n) => set('teardown', n)} />
+        <div className="field-row two">
+          <NumberField label="Minimum useful session" unit="min" value={a.minSession} onChange={(n) => set('minSession', n ?? 0)} />
+          <NumberField label="Ideal session" unit="min" optional value={a.idealSession} onChange={(n) => set('idealSession', n)} />
+          <NumberField label="Setup" unit="min" value={a.setup} onChange={(n) => set('setup', n ?? 0)} />
+          <NumberField label="Teardown" unit="min" value={a.teardown} onChange={(n) => set('teardown', n ?? 0)} />
         </div>
         <p className="small mu hint">
-          All in, about {formatMinutes(totalMinutes(a))}. Value {value(a).toFixed(1)} of 5.
+          Needs at least {formatMinutes(totalMinutes(a))} all in
+          {idealTotalMinutes(a) > totalMinutes(a) && `, ideally ${formatMinutes(idealTotalMinutes(a))}`}. Value {value(a).toFixed(1)} of 5
+          {a.effort > 1 && ` after −${(EFFORT_PENALTY * (a.effort - 1)).toFixed(2)} for effort`}.
         </p>
-        <NumberField label="Time you spend on it in a normal week" unit="hours" value={a.weeklyHours} onChange={(n) => set('weeklyHours', n)} />
+        <NumberField label="Time you spend on it in a normal week" unit="hours" value={a.weeklyHours} onChange={(n) => set('weeklyHours', n ?? 0)} />
 
         <label className="field">
           <span>Notes</span>
@@ -137,10 +140,10 @@ export function Editor({ activity, onClose }: { activity: Activity | null; onClo
   );
 }
 
-function NumberField({ label, unit, value, onChange }: { label: string; unit: string; value: number; onChange: (n: number) => void }) {
-  const [text, setText] = useState(String(value));
+function NumberField<T extends number | null>({ label, unit, value, onChange, optional }: { label: string; unit: string; value: T; onChange: (n: number | null) => void; optional?: boolean }) {
+  const [text, setText] = useState(value === null ? '' : String(value));
   useEffect(() => {
-    if (Number(text) !== value) setText(String(value));
+    if ((text.trim() === '' ? null : Number(text)) !== value) setText(value === null ? '' : String(value));
   }, [value]);
   return (
     <label className="field num">
@@ -149,8 +152,10 @@ function NumberField({ label, unit, value, onChange }: { label: string; unit: st
         <input
           inputMode="decimal"
           value={text}
+          placeholder={optional ? 'Optional' : '0'}
           onChange={(e) => {
             setText(e.target.value);
+            if (e.target.value.trim() === '') return onChange(optional ? null : 0);
             const n = Number(e.target.value.replace(',', '.'));
             if (Number.isFinite(n) && n >= 0) onChange(n);
           }}

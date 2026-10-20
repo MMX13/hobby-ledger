@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { formatHours, formatMinutes, GEM_HOURS, GEM_VALUE, overheadMinutes, SINK_HOURS, SINK_VALUE, sortActivities, tagSummaries, value, verdict } from '../engine/scores';
+import { formatHours, formatMinutes, GEM_HOURS, GEM_VALUE, overheadMinutes, SINK_HOURS, SINK_VALUE, sessionRange, sortActivities, tagSummaries, totalMinutes, value, verdict } from '../engine/scores';
 import type { Activity } from '../engine/types';
 import { useApp } from '../data/store';
 import { Header, Icon } from './components';
@@ -60,7 +60,7 @@ export function Insights({ onEdit }: { onEdit: (a: Activity) => void }) {
         tone="gem"
         empty={`Nothing here - no activity with value ${GEM_VALUE}+ that you do less than ${GEM_HOURS} hour a week.`}
         items={gems}
-        detail={(a) => `value ${value(a).toFixed(1)} · ${formatMinutes(a.setup + a.duration + a.teardown)} all in`}
+        detail={(a) => `value ${value(a).toFixed(1)} · from ${formatMinutes(totalMinutes(a))} all in`}
         onEdit={onEdit}
       />
       {fiddly.length > 0 && (
@@ -70,7 +70,7 @@ export function Insights({ onEdit }: { onEdit: (a: Activity) => void }) {
           tone=""
           empty=""
           items={fiddly}
-          detail={(a) => `${formatMinutes(overheadMinutes(a))} around a ${formatMinutes(a.duration)} session`}
+          detail={(a) => `${formatMinutes(overheadMinutes(a))} around a ${sessionRange(a)} session`}
           onEdit={onEdit}
         />
       )}
