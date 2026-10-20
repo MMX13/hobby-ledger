@@ -9,27 +9,18 @@ export function More() {
   const file = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
 
-  const exportJson = async () => {
+  const exportJson = () => {
     const name = `hobby-ledger-${new Date().toISOString().slice(0, 10)}.json`;
-    const json = JSON.stringify(getState(), null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const f = new File([blob], name, { type: 'application/json' });
-    try {
-      if (navigator.canShare?.({ files: [f] })) {
-        await navigator.share({ files: [f], title: 'Hobby Ledger backup' });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = name;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }
-      update((d) => void (d.prefs.lastBackup = Date.now()));
-      setMsg('Backup saved.');
-    } catch {
-      setMsg('Backup cancelled.');
-    }
+    const url = URL.createObjectURL(new Blob([JSON.stringify(getState(), null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    update((d) => void (d.prefs.lastBackup = Date.now()));
+    setMsg(`Saved ${name} to your downloads.`);
   };
 
   const importJson = async (f: File) => {
